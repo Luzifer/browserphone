@@ -17,7 +17,15 @@
         <b-col cols="12" md="6">
 
           <b-card>
-            <b-form-input size="lg" slot="header" type="tel" class="my-2 number border-info" autofocus v-model="number"></b-form-input>
+            <b-form-input
+              autofocus
+              class="my-2 number border-info"
+              @keypress="evt => keypress(evt)"
+              size="lg"
+              slot="header"
+              type="tel"
+              v-model="number"
+              ></b-form-input>
 
             <b-row>
               <b-col v-for="key in keys" cols="4" class="text-center mb-3" :key="key">
@@ -80,6 +88,12 @@ export default {
 
     keyDown(key) {
       this.number = `${this.number}${key}`
+    },
+
+    keypress(evt) {
+      if (evt.keyCode === 13) {
+        this.toggleCall()
+      }
     },
 
     setupPhone() {

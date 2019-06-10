@@ -80,11 +80,14 @@ export default {
   },
 
   methods: {
-    announceStatus(state) {
+    announceStatus(state, autoClear = true) {
       this.state = state
-      window.setTimeout(() => {
-        this.state = ''
-      }, 2000)
+
+      if (autoClear) {
+        window.setTimeout(() => {
+          this.state = ''
+        }, 2000)
+      }
     },
 
     keyDown(key) {
@@ -114,7 +117,7 @@ export default {
           this.announceStatus('Call disconnected')
         })
         this.phone.device.on('incoming', conn => {
-          this.announceStatus(`Incoming call from ${conn.parameters.From}`)
+          this.announceStatus(`Incoming call from ${conn.parameters.From}...`, false)
           this.phone.conn = conn
           this.ringing = true
         })

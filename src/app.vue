@@ -74,6 +74,7 @@ export default {
         conn: null,
         device: null,
       },
+      ringing: false,
       state: '',
     }
   },
@@ -104,12 +105,18 @@ export default {
         this.phone.device.on('connect', conn => {
           this.phone.conn = conn
           this.ongoingCall = true
+          this.ringing = false
           this.announeState('Call connected')
         })
         this.phone.device.on('disconnect', () => {
           this.phone.conn = null
           this.ongoingCall = false
           this.announeState('Call disconnected')
+        })
+        this.phone.device.on('incoming', conn => {
+          this.announceStatus(`Incoming call from ${conn.parameters.From}`)
+          this.phone.conn = conn
+          this.ringing = true
         })
         this.phone.device.on('offline', () => {
           this.announceStatus('Phone disconnected, reconnecting...')
@@ -123,11 +130,17 @@ export default {
         .then(resp => {
           this.identity = resp.data.identity
           this.phone.device.setup(resp.data.token, opts)
+          this.ringing = false
         })
         .catch(err => console.error(err))
     },
 
     toggleCall() {
+      if (this.ringing && this.phone.conn) {
+        this.phone.conn.accept()
+        return
+      }
+
       if (this.ongoingCall) {
         this.phone.device.disconnectAll()
         return

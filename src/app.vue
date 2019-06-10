@@ -76,6 +76,10 @@ export default {
       },
       ringing: false,
       state: '',
+      wakeLock: {
+        obj: null,
+        request: null,
+      },
     }
   },
 
@@ -110,11 +114,13 @@ export default {
           this.ongoingCall = true
           this.ringing = false
           this.announceStatus('Call connected')
+          this.setWakeLock(true)
         })
         this.phone.device.on('disconnect', () => {
           this.phone.conn = null
           this.ongoingCall = false
           this.announceStatus('Call disconnected')
+          this.setWakeLock(false)
         })
         this.phone.device.on('incoming', conn => {
           this.announceStatus(`Incoming call from ${conn.parameters.From}...`, false)
@@ -136,6 +142,30 @@ export default {
           this.ringing = false
         })
         .catch(err => console.error(err))
+    },
+
+    async setWakeLock(lock) {
+      if (!navigator || !navigator.getWakeLock) {
+        // No wake-lock functionality present in this browser
+        console.debug('Browser has no wake-lock support')
+        return
+      }
+
+      if (!this.wakeLock.obj) {
+        this.wakeLock.obj = await navigator.getWakeLock('screen')
+      }
+
+      if (lock && !this.wakeLock.request) {
+        this.wakeLock.request = this.wakeLock.obj.createRequest()
+        this.announceStatus('Wake-lock aquired: Keeping display active...')
+        return
+      }
+
+      if (!lock && this.wakeLock.request) {
+        this.wakeLock.request.cancel()
+        this.wakeLock.request = null
+        this.announceStatus('Wake-lock disabled: Screen may sleep...')
+      }
     },
 
     toggleCall() {

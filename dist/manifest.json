@@ -1,0 +1,25 @@
+{
+  "short_name": "BrowserPhone",
+  "name": "BrowserPhone",
+  "icons": [
+    {
+      "src": "phone_192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "phone_512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    },
+    {
+      "src": "phone_600.png",
+      "type": "image/png",
+      "sizes": "600x600"
+    }
+  ],
+  "start_url": "/",
+  "background-color": "#222222",
+  "display": "standalone",
+  "theme_color": "#222222"
+}

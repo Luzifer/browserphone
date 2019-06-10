@@ -1,7 +1,10 @@
 #!/usr/local/bin/dumb-init /bin/bash
 set -euxo pipefail
 
-ln -f dist/app.js app.js
-korvike -i dist/index.html -o index.html
+if [[ ! -f index.html.dist ]]; then
+	mv index.html index.html.dist
+fi
+
+korvike -i index.html.dist -o index.html
 
 exec python -m http.server 3000

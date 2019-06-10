@@ -27,5 +27,5 @@ RUN set -ex \
  && apk --no-cache add bash
 
 EXPOSE 3000/tcp
-WORKDIR "/usr/local/share/browserphone"
+WORKDIR "/usr/local/share/browserphone/dist"
 CMD ["/usr/local/bin/docker-entrypoint.sh"]

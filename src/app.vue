@@ -63,18 +63,24 @@ export default {
     keys() {
       return [1, 2, 3, 4, 5, 6, 7, 8, 9, '*', 0, '#']
     },
+
+    ongoingCall() {
+      return this.phone.conn && this.phone.conn.status() === 'open'
+    },
+
+    ringing() {
+      return this.phone.conn && this.phone.conn.status() === 'ringing'
+    },
   },
 
   data() {
     return {
       identity: null,
       number: '',
-      ongoingCall: false,
       phone: {
         conn: null,
         device: null,
       },
-      ringing: false,
       state: '',
       wakeLock: {
         obj: null,
@@ -116,27 +122,17 @@ export default {
         this.phone.device.on('error', err => console.error(err))
         this.phone.device.on('connect', conn => {
           this.phone.conn = conn
-          this.ongoingCall = true
-          this.ringing = false
           this.announceStatus('Call connected')
           this.setWakeLock(true)
         })
         this.phone.device.on('disconnect', () => {
           this.phone.conn = null
-          this.ongoingCall = false
           this.announceStatus('Call disconnected')
           this.setWakeLock(false)
         })
         this.phone.device.on('incoming', conn => {
           this.announceStatus(`Incoming call from ${conn.parameters.From}...`, false)
           this.phone.conn = conn
-          this.ringing = true
-          this.phone.conn.on('disconnect', () => {
-            this.phone.conn = null
-            this.ongoingCall = false
-            this.announceStatus('Call disconnected')
-            this.ringing = true
-          })
         })
         this.phone.device.on('offline', () => {
           this.announceStatus('Phone disconnected, reconnecting...')
@@ -150,7 +146,6 @@ export default {
         .then(resp => {
           this.identity = resp.data.identity
           this.phone.device.setup(resp.data.token, opts)
-          this.ringing = false
         })
         .catch(err => console.error(err))
     },
@@ -180,7 +175,7 @@ export default {
     },
 
     toggleCall() {
-      if (this.ringing && this.phone.conn) {
+      if (this.ringing) {
         this.phone.conn.accept()
         return
       }

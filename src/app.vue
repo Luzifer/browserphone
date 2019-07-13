@@ -131,6 +131,12 @@ export default {
           this.announceStatus(`Incoming call from ${conn.parameters.From}...`, false)
           this.phone.conn = conn
           this.ringing = true
+          this.phone.conn.on('disconnect', () => {
+            this.phone.conn = null
+            this.ongoingCall = false
+            this.announceStatus('Call disconnected')
+            this.ringing = true
+          })
         })
         this.phone.device.on('offline', () => {
           this.announceStatus('Phone disconnected, reconnecting...')

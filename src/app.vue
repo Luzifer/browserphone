@@ -27,7 +27,7 @@
               v-model="number"
               ></b-form-input>
 
-            <b-row>
+            <b-row class="justify-content-center">
               <b-col v-for="key in keys" cols="4" class="text-center mb-3" :key="key">
                 <b-btn size="lg" @click="keyDown(key)">{{ key }}</b-btn>
               </b-col>

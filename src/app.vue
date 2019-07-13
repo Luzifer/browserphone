@@ -68,8 +68,8 @@ export default {
       return this.phone.conn && this.phone.conn.status() === 'open'
     },
 
-    ringing() {
-      return this.phone.conn && this.phone.conn.status() === 'ringing'
+    pendingCall() {
+      return this.phone.conn && this.phone.conn.status() === 'pending'
     },
   },
 
@@ -175,7 +175,7 @@ export default {
     },
 
     toggleCall() {
-      if (this.ringing) {
+      if (this.pendingCall) {
         this.phone.conn.accept()
         return
       }

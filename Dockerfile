@@ -1,4 +1,4 @@
-FROM node:alpine as builder
+FROM node as builder
 
 COPY . /src
 WORKDIR /src
@@ -8,7 +8,9 @@ RUN set -ex \
  && npm run build
 
 RUN set -ex \
- && apk add curl \
+ && apt-get update \
+ && apt-get install -y \
+      curl \
  && curl -sSfLo /tmp/dumb-init "https://github.com/Yelp/dumb-init/releases/download/v1.2.2/dumb-init_1.2.2_amd64" \
  && chmod +x /tmp/dumb-init \
  && curl -sSfL "https://github.com/Luzifer/korvike/releases/download/v0.5.0/korvike_linux_amd64.tar.gz" | tar -xz -C /tmp

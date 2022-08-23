@@ -1,33 +1,33 @@
 {
   "devDependencies": {
-    "axios": "^0.19.2",
-    "babel-core": "^6.26.3",
-    "babel-loader": "^7.1.5",
-    "babel-plugin-transform-runtime": "^6.23.0",
-    "babel-preset-env": "^1.7.0",
-    "bootstrap": "^4.5.0",
-    "bootstrap-vue": "^2.16.0",
-    "bootswatch": "^4.5.0",
-    "css-loader": "^1.0.0",
-    "node-sass": "^4.14.1",
-    "popper.js": "^1.16.1",
-    "sass-loader": "^7.3.1",
-    "style-loader": "^0.21.0",
-    "vue": "^2.6.11",
-    "vue-i18n": "^8.20.0",
-    "vue-loader": "^15.9.3",
-    "vue-template-compiler": "^2.6.11",
-    "webpack": "^4.44.1",
-    "webpack-cli": "^3.3.12",
-    "webpack-dev-middleware": "^1.4.0",
-    "webpack-hot-middleware": "^2.9.1"
+    "@babel/core": "^7.18.13",
+    "@babel/plugin-transform-runtime": "^7.18.10",
+    "@babel/preset-env": "^7.18.10",
+    "@babel/runtime": "^7.18.9",
+    "babel-loader": "^8.2.5",
+    "css-loader": "^6.7.1",
+    "node-sass": "^7.0.1",
+    "sass-loader": "^13.0.2",
+    "style-loader": "^3.3.1",
+    "util": "^0.12.4",
+    "vue-loader": "^15",
+    "vue-template-compiler": "^2",
+    "webpack": "^5.74.0",
+    "webpack-cli": "^4.10.0"
   },
   "name": "browserphone",
   "private": true,
   "scripts": {
-    "build": "webpack -p"
+    "build": "webpack --mode production"
   },
   "dependencies": {
-    "@twilio/voice-sdk": "^2.1.1"
+    "@twilio/voice-sdk": "^2.1.1",
+    "axios": "^0.27.2",
+    "bootstrap": "^4",
+    "bootstrap-vue": "^2.22.0",
+    "bootswatch": "^4",
+    "popper.js": "^1.16.1",
+    "vue": "^2",
+    "vue-i18n": "^8"
   }
 }

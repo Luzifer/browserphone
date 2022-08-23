@@ -1,7 +1,8 @@
 const path = require('path')
-const webpack = require('webpack');
+const webpack = require('webpack')
 
-const VueLoaderPlugin = require('vue-loader/lib/plugin')
+const { VueLoaderPlugin } = require('vue-loader')
+
 
 function resolve(dir) {
   return path.join(__dirname, dir)
@@ -14,16 +15,20 @@ module.exports = {
     path: resolve('./dist'),
   },
   plugins: [
-    new webpack.optimize.OccurrenceOrderPlugin(),
     new webpack.DefinePlugin({
       'process.env': {
-        'NODE_ENV': JSON.stringify('production')
-      }
+        NODE_ENV: JSON.stringify('production'),
+      },
     }),
     new VueLoaderPlugin(),
   ],
+  resolve: {
+    fallback: {
+      util: require.resolve('util/'),
+    },
+  },
   optimization: {
-    minimize: true
+    minimize: true,
   },
   module: {
     rules: [
@@ -43,14 +48,9 @@ module.exports = {
         use: {
           loader: 'babel-loader',
           options: {
-            plugins: [
-              ['transform-runtime', {polyfill: false, regenerator: true}],
-            ],
-            presets: [
-              ['env', { "targets": { "browsers": [">0.25%", "not ie 11", "not op_mini all"] } }]
-            ]
-          }
-        }
+            presets: [['@babel/preset-env', { targets: { browsers: ['>0.25%', 'not ie 11', 'not op_mini all'] } }]],
+          },
+        },
       },
 
       {
@@ -58,6 +58,6 @@ module.exports = {
         loader: 'vue-loader',
       },
 
-    ]
-  }
+    ],
+  },
 }

@@ -52,7 +52,7 @@
 
 <script>
 import axios from 'axios'
-import Twilio from 'twilio-client'
+import { Device } from '@twilio/voice-sdk'
 
 import config from './config.js'
 
@@ -100,6 +100,22 @@ export default {
       }
     },
 
+    handleCall(call) {
+      this.phone.conn = call
+
+      this.phone.conn.on('accept', conn => {
+        this.phone.conn = conn
+        this.announceStatus('Call connected')
+        this.setWakeLock(true)
+      })
+
+      this.phone.conn.on('disconnect', () => {
+        this.phone.conn = null
+        this.announceStatus('Call disconnected')
+        this.setWakeLock(false)
+      })
+    },
+
     keyDown(key) {
       if (this.ongoingCall) {
         this.phone.conn.sendDigits(key)
@@ -116,36 +132,31 @@ export default {
     },
 
     setupPhone() {
-      if (!this.phone.device) {
-        this.phone.device = new Twilio.Device()
-        this.phone.device.on('ready', () => this.announceStatus('Phone ready...'))
-        this.phone.device.on('error', err => console.error(err))
-        this.phone.device.on('connect', conn => {
-          this.phone.conn = conn
-          this.announceStatus('Call connected')
-          this.setWakeLock(true)
-        })
-        this.phone.device.on('disconnect', () => {
-          this.phone.conn = null
-          this.announceStatus('Call disconnected')
-          this.setWakeLock(false)
-        })
-        this.phone.device.on('incoming', conn => {
-          this.announceStatus(`Incoming call from ${conn.parameters.From}...`, false)
-          this.phone.conn = conn
-        })
-        this.phone.device.on('offline', () => {
-          this.announceStatus('Phone disconnected, reconnecting...')
-          this.setupPhone()
-        })
-      }
-
       const opts = { codecPreferences: ['opus', 'pcmu'], fakeLocalDTMF: true }
+
+      if (this.phone.device) {
+        this.phone.device.destroy()
+      }
 
       axios.get(config.capabilityTokenURL)
         .then(resp => {
-          this.identity = resp.data.identity
-          this.phone.device.setup(resp.data.token, opts)
+          this.phone.device = new Device(resp.data.token, opts)
+
+          this.phone.device.on('registered', () => this.announceStatus('Device registered'))
+          this.phone.device.on('error', err => console.error(err))
+
+
+          this.phone.device.on('incoming', call => {
+            this.announceStatus(`Incoming call from ${call.parameters.From}...`, false)
+            this.handleCall(call)
+          })
+
+          this.phone.device.on('unregistered', () => {
+            this.announceStatus('Phone unregistered, reconnecting...')
+            this.setupPhone()
+          })
+
+          this.phone.device.register()
         })
         .catch(err => console.error(err))
     },
@@ -190,8 +201,11 @@ export default {
       if (this.number) {
         this.announceStatus(`Dialing ${this.number}...`)
         this.phone.device.connect({
-          To: this.number,
+          params: {
+            To: this.number,
+          },
         })
+          .then(call => this.handleCall(call))
       }
     },
   },

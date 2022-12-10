@@ -33,7 +33,7 @@
               </b-col>
 
               <b-col cols="4" class="text-center mb-2">
-                <b-btn size="lg" :variant="ongoingCall ? 'danger' : 'success'" @click="toggleCall">
+                <b-btn size="lg" :variant="ongoingCall ? 'danger' : 'success'" @click="toggleCall" :disabled="!phoneReady">
                   <i :class="{ 'fas': true, 'fa-phone': !ongoingCall, 'fa-phone-slash': ongoingCall }"></i>
                 </b-btn>
               </b-col>
@@ -71,15 +71,26 @@ export default {
     pendingCall() {
       return this.phone.conn && this.phone.conn.status() === 'pending'
     },
+
+    phoneReady() {
+      return this.phone.conn && this.phone.device && this.phone.registered
+    },
   },
 
   data() {
     return {
+      backoff: {
+        current: 100,
+        initial: 100,
+        max: 30000,
+        multiplier: 1.25,
+      },
       identity: null,
       number: '',
       phone: {
         conn: null,
         device: null,
+        registered: false,
       },
       state: '',
       wakeLock: {
@@ -132,6 +143,7 @@ export default {
     },
 
     setupPhone() {
+      this.backoff.current = Math.min(this.backoff.current * this.backoff.multiplier, this.backoff.max)
       const opts = { codecPreferences: ['opus', 'pcmu'], fakeLocalDTMF: true }
 
       if (this.phone.device) {
@@ -146,7 +158,11 @@ export default {
         .then(resp => {
           this.phone.device = new Device(resp.data.token, opts)
 
-          this.phone.device.on('registered', () => this.announceStatus('Device registered'))
+          this.phone.device.on('registered', () => {
+            this.backoff.current = this.backoff.initial
+            this.phone.registered = true
+            this.announceStatus('Device registered')
+          })
           this.phone.device.on('error', err => console.error(err))
 
 
@@ -156,8 +172,9 @@ export default {
           })
 
           this.phone.device.on('unregistered', () => {
+            this.phone.registered = false
             this.announceStatus('Phone unregistered, reconnecting...')
-            this.setupPhone()
+            window.setTimeout(() => this.setupPhone(), this.backoff.current)
           })
 
           this.phone.device.register()

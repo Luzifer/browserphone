@@ -1,3 +1,4 @@
+/* eslint-disable sort-imports */
 import Vue from 'vue'
 
 import BootstrapVue from 'bootstrap-vue'
@@ -10,8 +11,9 @@ import app from './app.vue'
 
 Vue.use(BootstrapVue)
 
-new Vue({
+window.app = new Vue({
   components: { app },
   el: '#app',
+  name: 'BrowserPhone',
   render: c => c('app'),
 })

@@ -138,7 +138,11 @@ export default {
         this.phone.device.destroy()
       }
 
-      axios.get(config.capabilityTokenURL)
+      axios.get(config.capabilityTokenURL, {
+        headers: {
+          authorization: `Bearer ${config.capabilityTokenAuth}`,
+        },
+      })
         .then(resp => {
           this.phone.device = new Device(resp.data.token, opts)
 
